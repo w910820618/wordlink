@@ -7,6 +7,8 @@ const prisma = new PrismaClient();
 
 // Configuration
 const BATCH_SIZE = 1000;
+// 每批逐条 upsert 1000 行，远程库上会超过 Prisma 交互式事务默认的 5s 超时
+const TX_OPTIONS = { timeout: 120_000, maxWait: 30_000 };
 const DATA_DIR = path.join(process.cwd(), 'data');
 const MARKDOWN_DIR = path.join(DATA_DIR, 'word_text_database', 'word_database');
 const CHINESE_DIR = path.join(DATA_DIR, 'word_chinese');
@@ -113,7 +115,7 @@ async function migrateMarkdownFiles() {
             },
           });
         }
-      });
+      }, TX_OPTIONS);
     },
     'Markdown files'
   );
@@ -179,7 +181,7 @@ async function migrateChineseFiles() {
             },
           });
         }
-      });
+      }, TX_OPTIONS);
     },
     'Chinese JSON files'
   );
@@ -249,7 +251,7 @@ async function migrateEcdictData() {
                     },
                   });
                 }
-              });
+              }, TX_OPTIONS);
             },
             'ECDICT entries'
           );
@@ -319,7 +321,7 @@ async function migrateFissionData() {
                     },
                   });
                 }
-              });
+              }, TX_OPTIONS);
             },
             'Word Fission entries'
           );
